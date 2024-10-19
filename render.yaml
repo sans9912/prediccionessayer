@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: my-prediction-app
+    env: python
+    plan: starter
+    buildCommand: |
+      # Actualizar apt-get y añadir el repositorio de Microsoft para SQL Server
+      apt-get update && apt-get install -y curl apt-transport-https
+      curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+      curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+      apt-get update
+      ACCEPT_EULA=Y apt-get install -y msodbcsql17 unixodbc-dev
+
+      # Crear el archivo odbcinst.ini para registrar el driver
+      echo "[ODBC Drivers]" > /etc/odbcinst.ini
+      echo "SQL Server = Installed" >> /etc/odbcinst.ini
+      echo "[SQL Server]" >> /etc/odbcinst.ini
+      echo "Description = Microsoft ODBC Driver 17 for SQL Server" >> /etc/odbcinst.ini
+      echo "Driver = /opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.8.so.1.1" >> /etc/odbcinst.ini
+
+      # Instalar dependencias de Python
+      pip install -r requirements.txt
+
+    startCommand: gunicorn -w 4 -b 0.0.0.0:8000 predapipython:app
+
+    envVars:
+      - key: DATABASE_URL
+        value: "Driver={ODBC Driver 17 for SQL Server};Server=sql.bsite.net\MSSQL2016;Database=distsayer_sayer;UID=distsayer_sayer;PWD=sayereportes;TrustServerCertificate=yes"
+
+    healthCheckPath: /
