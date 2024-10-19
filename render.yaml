@@ -25,6 +25,6 @@ services:
 
     envVars:
       - key: DATABASE_URL
-        value: "Driver={ODBC Driver 17 for SQL Server};Server=sql.bsite.net\MSSQL2016;Database=distsayer_sayer;UID=distsayer_sayer;PWD=sayereportes;TrustServerCertificate=yes"
+        value: 'Driver={ODBC Driver 17 for SQL Server};Server=sql.bsite.net\\MSSQL2016;Database=distsayer_sayer;UID=distsayer_sayer;PWD=sayereportes;TrustServerCertificate=yes'
 
     healthCheckPath: /
